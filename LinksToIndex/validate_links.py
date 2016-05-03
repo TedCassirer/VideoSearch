@@ -1,8 +1,9 @@
 __author__ = 'mateusz'
 
 import argparse
-import requests
 import random
+import requests
+from langdetect import detect
 
 def main(input, output, limit):
 
@@ -23,9 +24,15 @@ def main(input, output, limit):
 			# make request
 			response = requests.get(baseurl + link)
 
-			# url is valid if we got 200 in response
+			# url is valid and video exists if we got 200 in response
 			if response.status_code == 200:
-				validurls.append(link.strip())
+				data = response.json()
+				title = data['title']
+
+				if detect(title) == 'en':
+					print title
+					print link
+					validurls.append(link.strip())
 
 			# break if we reached given limit
 			if len(validurls) >= limit:

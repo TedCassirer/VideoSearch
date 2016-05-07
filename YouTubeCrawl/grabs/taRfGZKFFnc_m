@@ -1,0 +1,20 @@
+{
+ "items": [
+  {
+   "id": "taRfGZKFFnc",
+   "snippet": {
+    "title": "Arduino + Capacitive touch slider + MAX7221",
+    "description": "Interfacing a Qprox SMD (SSOP14) touch slider IC and a MAX7221 with 16 leds (LED bar/VU meter). Everything is connected to an Arduino Diecimila. The code is still raw and extremely basic, features such as buffering/smoothing and host communication are not implemented yet. \r\nMore on: http://lab.xndr.com/",
+    "categoryId": "28"
+   },
+   "statistics": {
+    "viewCount": "14531",
+    "likeCount": "18",
+    "dislikeCount": "0",
+    "favoriteCount": "0",
+    "commentCount": "9"
+   }
+  }
+ ]
+}
+

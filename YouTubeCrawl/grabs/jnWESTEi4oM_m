@@ -1,0 +1,20 @@
+{
+ "items": [
+  {
+   "id": "jnWESTEi4oM",
+   "snippet": {
+    "title": "Arduino Controls LEDs with Max/Msp",
+    "description": "I am using an Arduino Diecimila to control an array of LEDs that is receiving message over serial from Max/Msp. This is a prototye for a larger project I am working on. Thanks much to Josh Southerland (http://cs.ou.edu/~southerland/ for help with the microprocessor code. \r\n\r\nAdditional Information:\r\n-Uses Simple Message System .pat\r\n-Pulse the LEDs to achieve varying brightness\r\n-Baud is 57600\r\n- cycle~ modulates the LEDs",
+    "categoryId": "28"
+   },
+   "statistics": {
+    "viewCount": "3451",
+    "likeCount": "12",
+    "dislikeCount": "1",
+    "favoriteCount": "0",
+    "commentCount": "6"
+   }
+  }
+ ]
+}
+

@@ -1,0 +1,20 @@
+{
+ "items": [
+  {
+   "id": "bXvk7kZbHd4",
+   "snippet": {
+    "title": "Arduino - robot arm following mouse",
+    "description": "Converting the position coordinates of the mouse to angles for the servos is a piece of cake. This is a silly demo.",
+    "categoryId": "28"
+   },
+   "statistics": {
+    "viewCount": "7797",
+    "likeCount": "9",
+    "dislikeCount": "0",
+    "favoriteCount": "0",
+    "commentCount": "6"
+   }
+  }
+ ]
+}
+

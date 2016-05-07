@@ -1,0 +1,20 @@
+{
+ "items": [
+  {
+   "id": "I-VG1Ua0so8",
+   "snippet": {
+    "title": "MyFace (Max/MSP patch)",
+    "description": "Max/MSP patch I made for a class. It reads color data from the webcam feed and  that data can be manipulated with a midi keyboard (which is in my lap) and this data is used to 'draw' the picture on the right.  The manipulated color data also determines the audio output.",
+    "categoryId": "28"
+   },
+   "statistics": {
+    "viewCount": "5833",
+    "likeCount": "7",
+    "dislikeCount": "2",
+    "favoriteCount": "0",
+    "commentCount": "6"
+   }
+  }
+ ]
+}
+

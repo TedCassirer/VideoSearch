@@ -1,0 +1,20 @@
+{
+ "items": [
+  {
+   "id": "j2K1MJ56_Uk",
+   "snippet": {
+    "title": "How to hide your Recycle Bin",
+    "description": "If you need help message me, reply, comment. Enjoy\r\n\r\n\r\n------------------------------------------\r\nWindows Registry Editor Version 5.00\r\n\r\n[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\W indows\\CurrentVersion\\Explorer\\Advanced\\ Folder\\RecycleBinOnDesktop]\r\n\"RegPath\"=\"Software\\\\Microsoft\\\\Windows\\ \\CurrentVersion\\\\Explorer\\\\HideDesktopIc ons\\\\NewStartPanel\"\r\n\"Text\"=\"Show Recycle Bin icon on the desktop\"\r\n\"Type\"=\"checkbox\"\r\n\"ValueName\"=\"{645FF040-5081-101B-9F08-00 AA002F954E}\"\r\n\"CheckedValue\"=dword:00000000\r\n\"UncheckedValue\"=dword:00000001\r\n\"DefaultValue\"=dword:00000000\r\n\"HKeyRoot\"=dword:80000001",
+    "categoryId": "26"
+   },
+   "statistics": {
+    "viewCount": "6195",
+    "likeCount": "14",
+    "dislikeCount": "3",
+    "favoriteCount": "0",
+    "commentCount": "22"
+   }
+  }
+ ]
+}
+

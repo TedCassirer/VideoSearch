@@ -1,0 +1,20 @@
+{
+ "items": [
+  {
+   "id": "OWVVrJqScO0",
+   "snippet": {
+    "title": "Google I/O 2008 - Building on the Promise of OpenSocial",
+    "description": "Building on the Promise of OpenSocial\r\nJeremiah Robison (Slide)\r\n\r\nThe goal of OpenSocial is to provide a framework for developers to build their applications once and run them in multiple social networks. To do this effectively, you need to architect your system to properly segment data and accommodate differences in networks, all while still maintaining a common code base. How do you scale this architecture out to multiple applications? Jeremiah Robison, CTO of Slide, will outline best practices for delivering multiple applications on multiple OpenSocial containers.",
+    "categoryId": "28"
+   },
+   "statistics": {
+    "viewCount": "2846",
+    "likeCount": "3",
+    "dislikeCount": "0",
+    "favoriteCount": "0",
+    "commentCount": "2"
+   }
+  }
+ ]
+}
+

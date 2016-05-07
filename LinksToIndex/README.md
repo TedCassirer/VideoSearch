@@ -17,7 +17,7 @@ It can be downloaded from here: http://netsg.cs.sfu.ca/youtubedata/080727.zip.
 
 ## Dependencies ##
 
-`pip install langdetect`
+`pip install langdetect pytube`
 
 ## Instructions ##
 

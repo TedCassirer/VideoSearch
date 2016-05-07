@@ -4,6 +4,7 @@ import argparse
 import random
 import requests
 from langdetect import detect
+from pytube import YouTube
 
 def main(input, output, limit):
 
@@ -29,7 +30,11 @@ def main(input, output, limit):
 				data = response.json()
 				title = data['title']
 
-				if detect(title) == 'en':
+				isEnglish = detect(title) == 'en'
+				yt = YouTube(link)
+				canDownload = len(yt.filter('mp4')) > 0
+
+				if isEnglish and canDownload:
 					print title
 					print link
 					validurls.append(link.strip())

@@ -7,8 +7,11 @@
 <body>
 
 <div class="container">
-    <#list links as l>
-    ${l} <br>
+    <#list links as video>
+        <#list v as video>
+            <a href="${l}">Here</a>
+        </#list>
+        <br>
     </#list>
 </div>
 

@@ -34,21 +34,15 @@ public class Main {
             if(q != null) {
                 SearchWeb sw = new SearchWeb(q);
                 sw.index();
-                System.err.println(sw.indexer.index.getSize());
-                PostingsList pl = sw.indexer.index.getPostings("airplane");
-                for(PostingsEntry pe: pl.getList()) {
-                    System.err.println(pe.docID);
-                }
-
                 PostingsList res = sw.search();
-                for(Map.Entry<String, String> e: Index.docIDs.entrySet()) {
-                }
                 
-                List<String> links = new LinkedList<String>();
+                List<List<String>> links = new LinkedList<List<String>>();
                 for(PostingsEntry pe: res.getList()) {
                     String videoPath = Index.docIDs.get(String.valueOf(pe.docID));
+                    List<String> video = new LinkedList<String>();
+
                     for(int offset: pe.getPos()) {
-                        links.add("https://www.youtube.com/watch?v=" + videoPath.substring(8, videoPath.length() - 6) + "#t=" + offset + "s");
+                        video.add("https://www.youtube.com/watch?v=" + videoPath.substring(8, videoPath.length() - 6) + "#t=" + offset + "s");
                     }
                 }
 

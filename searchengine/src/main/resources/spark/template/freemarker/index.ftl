@@ -6,8 +6,8 @@
 
 <body>
 
-<div class="jumbotron text-center">
-    <div class="container">
+<div class="search-bar-container text-center">
+    <div class="container search-bar">
         <form class="form-inline" method="get" action="./">
             <div class="form-group">
                 <label class="sr-only" for="query">Your query</label>

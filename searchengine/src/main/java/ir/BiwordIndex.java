@@ -3,7 +3,7 @@
  *   Information Retrieval course at KTH.
  * 
  *   First version: Laura Jacquemod, 2016
- */
+ */ 
 
 package ir;
 
@@ -123,15 +123,19 @@ public class BiwordIndex implements Index {
      *  Searches the index for postings matching the query using biwords.
      */
     public PostingsList search(Query query, int queryType, int rankingType, int frameType, double weightPopularity, double[] popularityScores, int distanceFrames, boolean optimization, double idf_threshold, boolean addition, double weight_addition) {
-	System.out.println("size:"+query.terms.size());
 	Query q = query.copy();
 	if (q.terms.size() < 2) {
 		return null;
 	} 
-
+	
 	//Processing the query to have it in bigram
 	LinkedList<String> t = new LinkedList<String>();
 	LinkedList<Double> w = new LinkedList<Double>();
+	
+	if (t.size() == 0) {
+		return null;
+	}
+	
 	for (int i =0; i<q.terms.size()-1;i++) {
 		t.add(q.terms.get(i) + " " + q.terms.get(i+1));
 		w.add((q.weights.get(i) + q.weights.get(i+1))/2);
@@ -143,87 +147,98 @@ public class BiwordIndex implements Index {
     	
 	//Ranked query
     	if (queryType == Index.RANKED_QUERY) {
-		//Initialization of variables
-		PostingsList answer=new PostingsList();
-		HashMap<String,Double> scores=new HashMap<String,Double>();
-		int nbDoc = docLengths.size();
-	
-    		if (rankingType == Index.TF_IDF) {
-			//Get time to see how long program takes
-			long initTime=System.nanoTime();	
+    		//Initialization of variables
+			PostingsList answer=new PostingsList();
+			HashMap<String,Double> scores=new HashMap<String,Double>();
+			int nbDoc = docLengths.size();
 
-			//Add tf-idf score for each document
-	    		while (t.size() != 0){
-				String term = t.remove();
-				double weight = w.remove();
-	    			PostingsList posts = getPostings(term);
-				if (posts != null && posts.size() !=0) {
-	    				scores = posts.addIdfScore(scores, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
+			if (rankingType == Index.TF_IDF) {
+				//Get time to see how long program takes
+				long initTime=System.nanoTime();	
+				
+				PostingsList posts = new PostingsList();
+				//Add tf-idf score for each document
+				while (t.size() != 0){
+					String term = t.remove();
+					double weight = w.remove();
+					PostingsList termPosts = getPostings(term);
+					if (termPosts != null && termPosts.size() !=0) {
+						scores = posts.addIdfScore(scores, termPosts, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
+					}
 				}
-	    		}
-	    	    	//Divide scores by docLength
-			Iterator<String> keys=scores.keySet().iterator();
-	    	    	while(keys.hasNext()){
-	    	    		String docIDStr =keys.next();
-	    	    		Integer docLength= docLengths.get(docIDStr);
-	    	    	    	Double curScore=scores.get(docIDStr);
-	    	    	    	double finalScore=curScore/(double)docLength;
-	    	    	    	answer.addAnswer(Integer.parseInt(docIDStr),finalScore);
-    	    		}
-			answer.sortScore();
-
-			//Print time program took
-			long timeTaken=System.nanoTime()-initTime;
-			System.out.println("Time taken:"+timeTaken+"ns");
-	    		return answer;
-
-    		} else if (rankingType == Index.PAGERANK) {
-			//Add pageRank for each document
-			while (t.size() != 0){
-				String term = t.remove();
-	    			PostingsList posts = getPostings(term);
-				if (posts != null) {
-	    				scores = posts.addPopularity(popularityScores, docIDs);
+				//Divide scores by docLength
+				Iterator<String> keys=scores.keySet().iterator();
+				while(keys.hasNext()){
+					String docIDStr =keys.next();
+					double docLengthSqrt= Math.sqrt(docLengths.get(docIDStr));
+					Double curScore=scores.get(docIDStr);
+					double finalScore=curScore/docLengthSqrt;
+					PostingsEntry postingsEnt = posts.getFromID(Integer.parseInt(docIDStr));
+					PostingsEntry toAdd = new PostingsEntry(Integer.parseInt(docIDStr), postingsEnt.getPos(), finalScore);
+					answer.addEntry(toAdd);
 				}
-	    		}
+				answer.sortScore();
 
-			Iterator<String> keys=scores.keySet().iterator();
-		    	while(keys.hasNext()){
-		    		String docIDStr=keys.next();
-		    	    	Double pageRank=scores.get(docIDStr);
-		    	    	answer.addAnswer(Integer.parseInt(docIDStr),pageRank);
-		    	}
-  			answer.sortScore();
-			return answer;
+				//Print time program took
+				long timeTaken=System.nanoTime()-initTime;
+				System.out.println("Time taken:"+timeTaken+"ns");
+				return answer;
 
-    		} else if (rankingType == Index.COMBINATION) {
-			//First calculate the tf-idf score
-			while (t.size() != 0){
-				String term = t.remove();
-				double weight = w.remove();
-	    			PostingsList posts = getPostings(term);
-				if (posts != null) {
-	    				scores = posts.addIdfScore(scores, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
+			} else if (rankingType == Index.PAGERANK) {
+				PostingsList posts = new PostingsList();
+				//Add popularity score for each document
+				while (t.size() != 0){
+					String term = t.remove();
+					PostingsList termPosts = getPostings(term);
+					if (termPosts != null && termPosts.size() !=0) {
+						scores = posts.addPopularity(termPosts, popularityScores, docIDs);
+					}
 				}
-	    		}
-			Iterator<String> keys=scores.keySet().iterator();
-	    	    	while(keys.hasNext()){
-	    	    		String docIDStr =keys.next();
-	    	    		Integer docLength= docLengths.get(docIDStr);
-	    	    	    	Double curScore=scores.get(docIDStr);
-	    	    	    	double finalScore=curScore/(double)docLength;
-	    	    	    	answer.addAnswer(Integer.parseInt(docIDStr),finalScore);
-    	    		}
-			answer.sortScore();
+				//Divide scores by docLength
+				Iterator<String> keys=scores.keySet().iterator();
+				while(keys.hasNext()){
+					String docIDStr =keys.next();
+					Double popularity=scores.get(docIDStr);
+					PostingsEntry postingsEnt = posts.getFromID(Integer.parseInt(docIDStr));
+					PostingsEntry toAdd = new PostingsEntry(Integer.parseInt(docIDStr), postingsEnt.getPos(), popularity);
+					answer.addEntry(toAdd);
+				}
+				answer.sortScore();
+				return answer;
 
-			//Then add combination with pageRank
-			answer.addCombinationScore(weightPopularity, popularityScores, docIDs);
-			answer.sortScore();
-			return answer;
+			} else if (rankingType == Index.COMBINATION) {
+				//First calculate the tf-idf score
+				PostingsList posts = new PostingsList();
+				//Add tf-idf score for each document
+				while (t.size() != 0){
+					String term = t.remove();
+					double weight = w.remove();
+					PostingsList termPosts = getPostings(term);
+					if (termPosts != null && termPosts.size() !=0) {
+						scores = posts.addIdfScore(scores, termPosts, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
+					}
+				}
+				//Divide scores by docLength
+				Iterator<String> keys=scores.keySet().iterator();
+				while(keys.hasNext()){
+					String docIDStr =keys.next();
+					double docLengthSqrt= Math.sqrt(docLengths.get(docIDStr));
+					Double curScore=scores.get(docIDStr);
+					double finalScore=curScore/docLengthSqrt;
+					PostingsEntry postingsEnt = posts.getFromID(Integer.parseInt(docIDStr));
+					PostingsEntry toAdd = new PostingsEntry(Integer.parseInt(docIDStr), postingsEnt.getPos(), finalScore);
+					answer.addEntry(postingsEnt);
+				}
+				answer.sortScore();
+				
+				//Then add combination with pageRank
+				answer.addCombinationScore(weightPopularity, popularityScores, docIDs);
+				answer.sortScore();
+				return answer;
 
-    		} else {
-    			System.err.println("Unrecognized ranking type");
-    		}
+			} else {
+				System.err.println("Unrecognized ranking type");
+			}
 
 	//Problem of request
     	} else {

@@ -1,0 +1,21 @@
+{
+ "items": [
+  {
+   "id": "XS6ysDFTbLU",
+   "snippet": {
+    "title": "Bill Gates ALS Ice Bucket Challenge",
+    "description": "Bill Gates accepts Mark Zuckerberg‘«÷s ALS Ice Bucket Challe
+nge and nominates Elon Musk, Ryan Seacrest and Chris Anderson from TED to partic
+ipate and raise awareness for ALS, also known as Lou Gehrig‘«÷s Disease.",
+    "categoryId": "29"
+   },
+   "statistics": {
+    "viewCount": "5030802738022",
+    "likeCount": "35200650",
+    "dislikeCount": "43162",
+    "favoriteCount": "0",
+    "commentCount": "140013"
+   }
+  }
+ ]
+}

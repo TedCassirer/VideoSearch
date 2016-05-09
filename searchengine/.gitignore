@@ -1,0 +1,7 @@
+# vim hidden files
+*.swp
+
+
+# Java binaries
+*.class
+*.jar

@@ -2,6 +2,5 @@
 *.swp
 
 
-# Java binaries
-*.class
-*.jar
+# Java binaries directory
+target

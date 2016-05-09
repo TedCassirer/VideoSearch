@@ -2,6 +2,8 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
+import java.util.LinkedList;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,13 +41,18 @@ public class Main {
                 }
 
                 PostingsList res = sw.search();
+                for(Map.Entry<String, String> e: Index.docIDs.entrySet()) {
+                }
                 
-                String message = "";
+                List<String> links = new LinkedList<String>();
                 for(PostingsEntry pe: res.getList()) {
-                    message += Index.docIDs.get(pe.docID) + "<br>";
+                    String videoPath = Index.docIDs.get(String.valueOf(pe.docID));
+                    for(int offset: pe.getPos()) {
+                        links.add("https://www.youtube.com/watch?v=" + videoPath.substring(8, videoPath.length() - 6) + "#t=" + offset + "s");
+                    }
                 }
 
-                attributes.put("message", message);
+                attributes.put("links", links);
                 return new ModelAndView(attributes, "response.ftl");
             } else {
                 return new ModelAndView(attributes, "index.ftl");

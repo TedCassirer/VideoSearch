@@ -28,7 +28,7 @@ public class SearchWeb {
 	static final boolean optimization = false;    
 	static final double idf_threshold = 0.0001;
 	//For additional info (title, description,...)
-	static final boolean addition = false;
+	static final boolean addition = true;
 	static final double weight_addition = 0.2;
 	
     static final String LOGOPIC = "Videoquery.png";

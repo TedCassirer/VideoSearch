@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <#include "header.ftl">
+    <#include "header.ftl">
 </head>
 
 <body>
 
 <div class="container">
-  ${message}
+    <#list links as l>
+    ${l} <br>
+    </#list>
 </div>
 
 </body>

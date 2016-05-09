@@ -41,10 +41,10 @@ public interface Index {
     public HashMap<String, String> docIDs = new HashMap<String,String>();
     public HashMap<String,Integer> docLengths = new HashMap<String,Integer>();
     public HashMap<String,Integer> docLengthsExtended = new HashMap<String,Integer>();
-    public HashMap<String,Integer> docTimeFrame = new HashMap<String,Integer>();
+    public HashMap<String,Double> docTimeFrame = new HashMap<String,Double>();
     public LinkedList<Double> pageRank = new LinkedList<Double>();
 
-    public void insert( String token, int docID, int frame );
+    public void insert( String token, int docID, int frame);
     public void insert(String token, PostingsList postings);
     public Iterator<String> getDictionary();
     public TreeMap<String,PostingsList> order();

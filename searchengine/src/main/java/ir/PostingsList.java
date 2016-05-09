@@ -40,6 +40,17 @@ public class PostingsList implements Serializable {
 		return list.get( i );
 	}
 
+	/** Returns postingsentry with given docID or null if it doesn't exist **/ 
+	public PostingsEntry getFromID(int docID) {
+		int pos = 0;
+		while (pos < this.size()) {
+			if (this.get(pos).docID == docID) {
+				return this.get(pos);
+			}
+			pos++;
+		}
+		return null;
+	}
 	/**  Returns the entire list of postings */
 	public LinkedList<PostingsEntry> getList() {
 		return list;
@@ -52,6 +63,19 @@ public class PostingsList implements Serializable {
 		return postingsCopy;
 	}
 
+	/** Checks if postingslist has a special docID**/
+	public boolean hasID(int docID) {
+		boolean result = false;
+		int pos = 0;
+		while (!result && pos < this.size()) {
+			if (this.get(pos).docID == docID) {
+				result = true;
+			}
+			pos++;
+		}
+		return result;
+	}
+	
 	/**  Adds docID at the end of the list
 	 * It is at the end since the documents are indexed
 	 * recursively */
@@ -95,12 +119,31 @@ public class PostingsList implements Serializable {
 	/**  Add a list of postings to an existing PostingsList */
 	public void mergePostings(PostingsList postlist) {
 		for (int i =0; i< postlist.size(); i++) {
-			list.addLast(postlist.get(i));
+			boolean result = false;
+			int pos = 0;
+			while (!result && pos < this.size()) {
+				if (this.get(pos).docID == postlist.get(i).docID) {
+					result = true;
+				} else {
+					pos++;
+				}
+			}
+			
+			if (result) {
+				//DocID is already there
+				for (int k=0; k < postlist.get(i).getSizePos();k++) {
+					if (!this.get(pos).hasPos(postlist.get(i).getPos(k))){
+						this.get(pos).addPos(postlist.get(i).getPos(k));
+					}
+				}
+			} else {
+				this.list.add(pos, postlist.get(i));
+			}
 		}
 	}
 
 	/**
-	 *  Add a list of postings to an existing PostingsList with a special 
+	 *  Add a list of postings to an existing PostingsList with a special scale
 	 *
 	 */
 	public PostingsList mergeScale(PostingsList postlist, double scale, int nbDocs) {
@@ -123,14 +166,14 @@ public class PostingsList implements Serializable {
 	}
 
 	/* Computation of the cosine score for a certain term*/
-	public HashMap<String,Double> addIdfScore(HashMap<String,Double> scores, String term, double weight, int nbDocs, boolean optimization, double idf_threshold, boolean addition, double weight_addition){    	   
+	public HashMap<String,Double> addIdfScore(HashMap<String,Double> scores, PostingsList post, String term, double weight, int nbDocs, boolean optimization, double idf_threshold, boolean addition, double weight_addition){    	   
 		//Deleting unrelevant information if additional information is not used
 		if (!addition) {
-			this.deleteAddition();
+			post.deleteAddition();
 		}
 		
 		//Calculation of idft
-		int dft=this.size();
+		int dft=post.size();
 		double termIDF=Math.log((double)nbDocs/(double)dft);  
 		termIDF=termIDF*weight;
 
@@ -143,9 +186,11 @@ public class PostingsList implements Serializable {
 			}
 		}
 
+		this.mergePostings(post);
+		
 		// For each document, add score
-		for (int i=0; i < this.size(); i++) {
-			PostingsEntry entry = this.get(i);
+		for (int i=0; i < post.size(); i++) {
+			PostingsEntry entry = post.get(i);
 			double tf=(double)entry.getSizePos();
 			double tf_idf=tf*termIDF;
 			Double curScore=scores.get(""+entry.getDocID());
@@ -181,7 +226,8 @@ public class PostingsList implements Serializable {
 
 
 	/** Enters the popularity scores for all documents required **/
-	public HashMap<String,Double> addPopularity(double[] popularityScores, HashMap<String,String> docIDs) {
+	public HashMap<String,Double> addPopularity(PostingsList post, double[] popularityScores, HashMap<String,String> docIDs) {
+		this.mergePostings(post);
 		HashMap<String,Double> scores=new HashMap<String,Double>();
 		for (int i=0; i < list.size(); i++) {
 			//Getting the file with metadata
@@ -239,7 +285,7 @@ public class PostingsList implements Serializable {
 	/**
 	 * Finding the intersection of query terms
 	 */
-	public PostingsList intersection(PostingsList otherList, int distanceFrames,HashMap<String,Integer> docTimeFrame){
+	public PostingsList intersection(PostingsList otherList, int distanceFrames,HashMap<String,Double> docTimeFrame){
 		if (list.size() == 0) {
 			return this;
 		}
@@ -262,7 +308,9 @@ public class PostingsList implements Serializable {
 				if (distanceFrames == 0) {
 					//Same document -> add to answer and remove both entries
 					//Different document -> delete the smallest entry
-					answer.addAnswer(entry1.docID, entry1.score);
+					entry1.mergePos(entry2.getPos());
+					PostingsEntry toAdd = new PostingsEntry(entry1.docID,entry1.getPos(),entry1.score);
+					answer.addEntry(toAdd);
 					entry1 = temp.remove();
 					entry2 = other.remove();
 				} else  {
@@ -271,7 +319,7 @@ public class PostingsList implements Serializable {
 					LinkedList<Integer> position2 = entry2.getPos();
 					boolean first = true;
 					
-					int timeFrame = docTimeFrame.get("" + entry1.docID);
+					double timeFrame = docTimeFrame.get("" + entry1.docID);
 					//Find if the second token is after the first one
 					//for each repetition of the first token
 					while (position1.size() > 0 ){
@@ -312,14 +360,16 @@ public class PostingsList implements Serializable {
 		if (temp.size() == 0 || other.size() == 0) {
 			if (entry1.docID == entry2.docID) {
 				if (distanceFrames == 0) {
-					answer.addAnswer(entry1.docID, entry1.score);
+					entry1.mergePos(entry2.getPos());
+					PostingsEntry toAdd = new PostingsEntry(entry1.docID,entry1.getPos(),entry1.score);
+					answer.addEntry(toAdd);
 				} else  {
 					//Checking that it is in close frames
 					LinkedList<Integer> position1 = entry1.getPos();
 					LinkedList<Integer> position2 = entry2.getPos();
 					boolean first = true;
 					
-					int timeFrame = docTimeFrame.get("" + entry1.docID);
+					double timeFrame = docTimeFrame.get("" + entry1.docID);
 					//Find if the second token is after the first one
 					//for each repetition of the first token
 					while (position1.size() > 0 ){
@@ -354,14 +404,16 @@ public class PostingsList implements Serializable {
 						if (distanceFrames == 0) {
 							//Same document -> add to answer and remove both entries
 							//Different document -> delete the smallest entry
-							answer.addAnswer(entry1.docID, entry1.score);
+							entry1.mergePos(entry2.getPos());
+							PostingsEntry toAdd = new PostingsEntry(entry1.docID,entry1.getPos(),entry1.score);
+							answer.addEntry(toAdd);
 						} else  {
 							//Checking that it is in close frames
 							LinkedList<Integer> position1 = entry1.getPos();
 							LinkedList<Integer> position2 = entry2.getPos();
 							boolean first = true;
 							
-							int timeFrame = docTimeFrame.get("" + entry1.docID);
+							double timeFrame = docTimeFrame.get("" + entry1.docID);
 							//Find if the second token is after the first one
 							//for each repetition of the first token
 							while (position1.size() > 0 ){
@@ -398,14 +450,16 @@ public class PostingsList implements Serializable {
 						if (distanceFrames == 0) {
 							//Same document -> add to answer and remove both entries
 							//Different document -> delete the smallest entry
-							answer.addAnswer(entry1.docID, entry1.score);
+							entry1.mergePos(entry2.getPos());
+							PostingsEntry toAdd = new PostingsEntry(entry1.docID,entry1.getPos(),entry1.score);
+							answer.addEntry(toAdd);
 						} else  {
 							//Checking that it is in close frames
 							LinkedList<Integer> position1 = entry1.getPos();
 							LinkedList<Integer> position2 = entry2.getPos();
 							boolean first = true;
 							
-							int timeFrame = docTimeFrame.get("" + entry1.docID);
+							double timeFrame = docTimeFrame.get("" + entry1.docID);
 							//Find if the second token is after the first one
 							//for each repetition of the first token
 							while (position1.size() > 0 ){

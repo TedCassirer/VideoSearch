@@ -93,8 +93,33 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     	pos = liste;
     }
 
+    //Adding a position at the correction position
     public void addPos(int position) {
-    	pos.add(position);
+    	int temp = 0;
+    	while (temp < this.getSizePos() && pos.get(temp) < position) {
+    		temp++;
+    	}
+    	pos.add(temp,position);
+    }
+    
+    public boolean hasPos(int pos) {
+    	boolean result = false;
+    	int temp = 0;
+		while (!result && temp < this.getSizePos()) {
+			if (this.getPos(temp) == pos) {
+				result = true;
+			}
+			temp++;
+		}
+		return result;
+    }
+    
+    public void mergePos(LinkedList<Integer> postingsPositions) {
+    	for (int k=0; k < postingsPositions.size();k++) {
+			if (!this.hasPos(postingsPositions.get(k))){
+				this.addPos(postingsPositions.get(k));
+			}
+		}
     }
     
     public void deleteFirstPos() {

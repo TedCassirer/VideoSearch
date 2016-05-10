@@ -4,15 +4,21 @@ html {
 
 body {
     height: 100%;
-    width: 800px;
     margin: auto;
 }
 
 .search-bar-container {
+    padding: 20px;
+}
+
+.homePage {
+}
+
+.homePage .search-bar-container {
     display: flex;
     height: 100%;
 }
 
-.search-bar {
+.homePage .search-bar {
     margin: auto;
 }

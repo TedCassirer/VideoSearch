@@ -23,7 +23,6 @@ import ir.Index;
 public class Main {
 
     public static void main(String[] args) {
-
         port(Integer.valueOf(System.getenv("PORT")));
         staticFileLocation("/public");
 
@@ -36,22 +35,22 @@ public class Main {
                 sw.index();
                 PostingsList res = sw.search();
                 
-                List<List<String>> links = new LinkedList<List<String>>();
+                List<Video> videos = new LinkedList<Video>();
                 for(PostingsEntry pe: res.getList()) {
                     String videoPath = Index.docIDs.get(String.valueOf(pe.docID));
-                    List<String> video = new LinkedList<String>();
+                    String videoName = videoPath.substring(8, videoPath.length() - 6);
+                    Video v = new Video(videoName, pe.getPos());
 
-                    for(int offset: pe.getPos()) {
-                        video.add("https://www.youtube.com/watch?v=" + videoPath.substring(8, videoPath.length() - 6) + "#t=" + offset + "s");
-                    }
+                    videos.add(v);
                 }
 
-                attributes.put("links", links);
+                attributes.put("videos", videos);
+                attributes.put("query", q);
                 return new ModelAndView(attributes, "response.ftl");
             } else {
+                attributes.put("query", "");
                 return new ModelAndView(attributes, "index.ftl");
             }
         }, new FreeMarkerEngine());
     }
-
 }

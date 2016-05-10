@@ -6,12 +6,16 @@
 
 <body>
 
+<#include "searchbar.ftl">
+
 <div class="container">
-    <#list links as video>
-        <#list v as video>
-            <a href="${l}">Here</a>
+    <#list videos as v>
+    <p>
+        <a href="https://www.youtube.com/watch?v=${v.name}"><img src="http://img.youtube.com/vi/${v.name}/default.jpg"></a> 
+        <#list v.times as t>
+            - <a href="https://www.youtube.com/watch?v=${v.name}#t=${t}s">At ${t}s</a> 
         </#list>
-        <br>
+    </p>
     </#list>
 </div>
 

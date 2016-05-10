@@ -1,13 +1,16 @@
-<div class="search-bar-container text-center">
-    <div class="container search-bar">
-        <form class="form-inline" method="get" action="./">
-            <div class="form-group">
-                <label class="sr-only" for="query">Your query</label>
-                <div class="input-group">
-                    <input type="text" class="form-control input-lg" name="q" id="query" placeholder="Enter a query" value="${query}">
+<div class="search-bar-container container">
+    <div class="row search-bar">
+        <div class="col-sm-6 col-sm-offset-3">
+            <form method="get" action="./"> 
+                <div class="input-group stylish-input-group">
+                    <input type="text" class="form-control" name="q" id="query" placeholder="Search" value="${query}">
+                    <span class="input-group-addon">
+                        <button type="submit">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>  
+                    </span>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
+        </div>
     </div>
 </div>

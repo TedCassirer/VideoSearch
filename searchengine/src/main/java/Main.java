@@ -30,7 +30,7 @@ public class Main {
             Map<String, Object> attributes = new HashMap<>();
             String q = request.queryParams("q");
 
-            if(q != null) {
+            if(q != null && !q.equals("")) {
                 SearchWeb sw = new SearchWeb(q);
                 sw.index();
                 PostingsList res = sw.search();

@@ -96,10 +96,7 @@ public class Indexer {
 					 *              (file with metadata)               *
 					 **************************************************/
 					//Getting the name of the file
-					int nameFile = f.getPath().lastIndexOf("\\");
-					int posFolder = f.getPath().substring(0,nameFile).lastIndexOf("\\");
-					int position = f.getPath().lastIndexOf("d");
-					String file = f.getPath().substring(0,posFolder)+ "\\Metadata" +f.getPath().substring(nameFile,position) +'m'+f.getPath().substring(position+1);
+                    String file = "Metadata/" + f.getName().substring(0, f.getName().length() - 6) + "_m.txt";
 
 					JSONParser parser = new JSONParser();
 					

@@ -11,9 +11,9 @@
 <div class="container">
     <#list videos as v>
     <p>
-        <a href="https://www.youtube.com/watch?v=${v.name}"><img src="http://img.youtube.com/vi/${v.name}/default.jpg"></a> 
+        <a target="_blank" href="https://www.youtube.com/watch?v=${v.name}"><img src="http://img.youtube.com/vi/${v.name}/default.jpg"></a> 
         <#list v.times as t>
-            - <a href="https://www.youtube.com/watch?v=${v.name}#t=${t}s">At ${t}s</a> 
+            - <a target="_blank" href="https://www.youtube.com/watch?v=${v.name}#t=${t}s">At ${t}s</a> 
         </#list>
     </p>
     </#list>

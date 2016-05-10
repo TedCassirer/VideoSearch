@@ -93,24 +93,26 @@ public class Query {
 					String term=tok.nextToken();
 
 					if (!termsText.contains(term)) {
-					termsText.add(term);
-					PostingsList postingsList=index.getPostings(term);
-					double termIDF=Math.log((double)nbDocs/(double)postingsList.size());
-						
-					for (int j =0; j< postingsList.size(); j++) {
-						if(postingsList.get(j).docID==docID){
-							//Calculate the tf_idf score for the term
-							int tf = postingsList.get(j).getSizePos();
-							double tf_idf=tf*termIDF;
-							int docLength=index.docLengths.get(Integer.toString(docID));
-							double finalScore=tf_idf/(double)docLength;
-
-							//Multiply with beta and divide by number of relevant
-							finalScore=(finalScore*beta)/(double)nbRelevantDocs;
-							termScores.put(term,finalScore);
-							break;
+						termsText.add(term);
+						PostingsList postingsList=index.getPostings(term);
+						if (postingsList != null) {
+							double termIDF=Math.log((double)nbDocs/(double)postingsList.size());
+	
+							for (int j =0; j< postingsList.size(); j++) {
+								if(postingsList.get(j).docID==docID){
+									//Calculate the tf_idf score for the term
+									int tf = postingsList.get(j).getSizePos();
+									double tf_idf=tf*termIDF;
+									int docLength=index.docLengths.get(Integer.toString(docID));
+									double finalScore=tf_idf/(double)docLength;
+	
+									//Multiply with beta and divide by number of relevant
+									finalScore=(finalScore*beta)/(double)nbRelevantDocs;
+									termScores.put(term,finalScore);
+									break;
+								}
+							}
 						}
-					}
 					}
 				}
 			} catch (IOException e) {

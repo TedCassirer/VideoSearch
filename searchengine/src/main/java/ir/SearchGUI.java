@@ -11,6 +11,8 @@
 package ir;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.awt.*;
 import java.awt.event.*;
@@ -33,6 +35,8 @@ public class SearchGUI extends JFrame {
 	//For additional info (title, description,...)
 	boolean addition = false;
 	double weight_addition = 0.2;
+	//For the final result, the number of frames that are considered as "near"
+	int beingClose = 3;
 	
     /**  The indexer creating the search index. */
     Indexer indexer = new Indexer();
@@ -212,20 +216,39 @@ public class SearchGUI extends JFrame {
 				buf.append( "" + results.get(i).docID );
 			    }
 			    else {
-				buf.append( filename );
+			    	int nameFile = filename.lastIndexOf("\\");
+					int position = filename.lastIndexOf("_d");
+					
+					//Finding the "BEST" time of the video if there are several 
+					int offs = results.get(i).getFirstPos();
+					if (results.get(i).getSizePos() > 1 ) {
+						LinkedList<Integer> closeFrames = new LinkedList<Integer>();
+						double lengthFrame = indexer.index.docTimeFrame.get("" + results.get(i).docID);
+						
+						for (int k = 0; k <results.get(i).getSizePos() ; k++){
+							int count = 0;
+							int timePosition = 0;
+							while (timePosition < results.get(i).getSizePos() &&  results.get(i).getPos(k) + beingClose * lengthFrame >  results.get(i).getPos(timePosition)) {
+								if (Math.abs(results.get(i).getPos(k) -  results.get(i).getPos(timePosition)) < beingClose * lengthFrame) {
+									count++;
+								}
+								timePosition++;
+							}
+							closeFrames.add(count);
+						}
+						
+						offs = results.get(i).getPos(closeFrames.indexOf(Collections.max(closeFrames)));
+					}
+					
+					// Convert time in minutes + seconds & add it to the string
+				    int minutes = offs / 60;
+				    int seconds = offs % 60;
+					String file =  "http://www.youtube.com/watch?v=" + filename.substring(nameFile+1,position)+ "&t=" + minutes + "m" + seconds + "s";
+					buf.append( file );
 			    }
 			    if ( queryType == Index.RANKED_QUERY ) {
 				buf.append( "   " + String.format( "%.5f", results.get(i).score )); 
 			    }
-			 // Convert time in minutes + seconds & add it to the string
-			    buf.append( "\n\tAt: " );
-			    for(int offs: results.get(i).getPos()) {
-			    	int minutes = offs / 60;
-			    	int seconds = offs % 60;
-			    	buf.append(String.format("%02d", minutes) + ":" + String.format("%02d", seconds) + ", ");
-			    }
-			    buf.setLength(buf.length() - 2); // Remove the last extra comma
-			    buf.append( "\n\n" );
 			    
 			    buf.append( "\n" );
 			}
@@ -279,10 +302,14 @@ public class SearchGUI extends JFrame {
 			    buf.append( " " + i + ". " );
 			    String filename = indexer.index.docIDs.get( "" + results.get(i).docID );
 			    if ( filename == null ) {
-				buf.append( "" + results.get(i).docID );
+			    	buf.append( "" + results.get(i).docID );
 			    }
 			    else {
-				buf.append( filename );
+			    	int nameFile = filename.lastIndexOf("\\");
+					int position = filename.lastIndexOf("_d");
+					String file =  "http://www.youtube.com/watch?v=" + filename.substring(nameFile+1,position);
+					buf.append( file );
+				//buf.append( filename );
 			    }
 			    buf.append( "   " + String.format( "%.5f", results.get(i).score ) + "\n" );
 			}

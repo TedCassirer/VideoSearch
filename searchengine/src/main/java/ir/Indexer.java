@@ -95,9 +95,8 @@ public class Indexer {
 					 *      GETTING INFORMATION FROM JSON FILE         *
 					 *              (file with metadata)               *
 					 **************************************************/
-
 					//Getting the name of the file
-					String file = "Metadata/" + f.getName().substring(0, f.getName().length() - 6) + "_m.txt";
+                    String file = "Metadata/" + f.getName().substring(0, f.getName().length() - 6) + "_m.txt";
 
 					JSONParser parser = new JSONParser();
 					
@@ -149,7 +148,7 @@ public class Indexer {
 							//At i=0, t =0, so we have to look at second frame
 							Double time = (Double) frame.get("time [s]");
 							int timeFrame = time.intValue();
-							index.docTimeFrame.put( "" + docID, timeFrame);
+							index.docTimeFrame.put( "" + docID, time);
 						}
 						
 						if (probability > thresholdProbability) {

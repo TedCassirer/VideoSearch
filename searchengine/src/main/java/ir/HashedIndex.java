@@ -11,10 +11,19 @@
 
 package ir;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *   Implements an inverted index as a Hashtable from words to PostingsLists.
@@ -22,7 +31,7 @@ import java.util.TreeMap;
 public class HashedIndex implements Index {
 
 	/** The index as a hashtable. */
-	public HashMap<String,PostingsList> index = new HashMap<String,PostingsList>();
+	private HashMap<String,PostingsList> index = new HashMap<String,PostingsList>();
 
 	/**
 	 *  Inserts this token in the index.
@@ -141,15 +150,45 @@ public class HashedIndex implements Index {
 			if (! addition) {
 				intersect.deleteAddition();
 			}
+			
+			for (int k = 0; k < intersect.size(); k++) {				
+				//Getting the file
+				String filename  = docIDs.get(""+intersect.get(k).docID);
+				double lengthFrame = docTimeFrame.get(""+intersect.get(k).docID);
+
+				JSONParser parser = new JSONParser();
+				Object obj;
+				try {
+					obj = parser.parse(new FileReader(filename));
+					JSONObject jsonObject = (JSONObject) obj;
+					JSONArray listFrames = (JSONArray) jsonObject.get("imgblobs");
+	
+					double sum = 0.0;
+					for (int j = 0; j < intersect.get(k).getSizePos(); j++) {
+						int value = (int)Math.round(intersect.get(k).getPos(j)/lengthFrame);
+						JSONObject frame = (JSONObject) listFrames.get(value);
+						
+						JSONObject candidate = (JSONObject) frame.get("candidate");
+						double probability = (double) candidate.get("logprob");
+						sum+= probability;
+					}
+					
+					intersect.get(k).changeScore(sum/intersect.get(k).getSizePos());
+				} catch (IOException | ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			intersect.sortScore();
 			return intersect;
 
 			//Phrase query
 		} else if (queryType == Index.PHRASE_QUERY) {
 			PostingsList phrase_answer = getPostings(t.remove());
+			if (phrase_answer == null) {phrase_answer = new PostingsList();}
 			if (!addition) {
 				phrase_answer.deleteAddition();
 			}
-			if (phrase_answer == null) {phrase_answer = new PostingsList();}
+			
 			while (t.size() != 0){
 				PostingsList posts = getPostings(t.remove());
 				if (posts == null) { 
@@ -173,14 +212,15 @@ public class HashedIndex implements Index {
 			if (rankingType == Index.TF_IDF) {
 				//Get time to see how long program takes
 				long initTime=System.nanoTime();	
-
+				
+				PostingsList posts = new PostingsList();
 				//Add tf-idf score for each document
 				while (t.size() != 0){
 					String term = t.remove();
 					double weight = w.remove();
-					PostingsList posts = getPostings(term);
-					if (posts != null && posts.size() !=0) {
-						scores = posts.addIdfScore(scores, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
+					PostingsList termPosts = getPostings(term);
+					if (termPosts != null && termPosts.size() !=0) {
+						scores = posts.addIdfScore(scores, termPosts, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
 					}
 				}
 				//Divide scores by docLength
@@ -190,7 +230,9 @@ public class HashedIndex implements Index {
 					double docLengthSqrt= Math.sqrt(docLengths.get(docIDStr));
 					Double curScore=scores.get(docIDStr);
 					double finalScore=curScore/docLengthSqrt;
-					answer.addAnswer(Integer.parseInt(docIDStr),finalScore);
+					PostingsEntry postingsEnt = posts.getFromID(Integer.parseInt(docIDStr));
+					PostingsEntry toAdd = new PostingsEntry(Integer.parseInt(docIDStr), postingsEnt.getPos(), finalScore);
+					answer.addEntry(toAdd);
 				}
 				answer.sortScore();
 
@@ -200,41 +242,49 @@ public class HashedIndex implements Index {
 				return answer;
 
 			} else if (rankingType == Index.PAGERANK) {
-				//Add pageRank for each document
+				PostingsList posts = new PostingsList();
+				//Add popularity score for each document
 				while (t.size() != 0){
 					String term = t.remove();
-					PostingsList posts = getPostings(term);
-					if (posts != null) {
-						scores = posts.addPopularity(popularityScores, docIDs);
+					PostingsList termPosts = getPostings(term);
+					if (termPosts != null && termPosts.size() !=0) {
+						scores = posts.addPopularity(termPosts, popularityScores, docIDs);
 					}
 				}
-
+				//Divide scores by docLength
 				Iterator<String> keys=scores.keySet().iterator();
 				while(keys.hasNext()){
-					String docIDStr=keys.next();
-					Double pageRank=scores.get(docIDStr);
-					answer.addAnswer(Integer.parseInt(docIDStr),pageRank);
+					String docIDStr =keys.next();
+					Double popularity=scores.get(docIDStr);
+					PostingsEntry postingsEnt = posts.getFromID(Integer.parseInt(docIDStr));
+					PostingsEntry toAdd = new PostingsEntry(Integer.parseInt(docIDStr), postingsEnt.getPos(), popularity);
+					answer.addEntry(toAdd);
 				}
 				answer.sortScore();
 				return answer;
 
 			} else if (rankingType == Index.COMBINATION) {
 				//First calculate the tf-idf score
+				PostingsList posts = new PostingsList();
+				//Add tf-idf score for each document
 				while (t.size() != 0){
 					String term = t.remove();
 					double weight = w.remove();
-					PostingsList posts = getPostings(term);
-					if (posts != null) {
-						scores = posts.addIdfScore(scores, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
+					PostingsList termPosts = getPostings(term);
+					if (termPosts != null && termPosts.size() !=0) {
+						scores = posts.addIdfScore(scores, termPosts, term, weight, nbDoc, optimization, idf_threshold, addition, weight_addition);
 					}
 				}
+				//Divide scores by docLength
 				Iterator<String> keys=scores.keySet().iterator();
 				while(keys.hasNext()){
 					String docIDStr =keys.next();
 					double docLengthSqrt= Math.sqrt(docLengths.get(docIDStr));
 					Double curScore=scores.get(docIDStr);
 					double finalScore=curScore/docLengthSqrt;
-					answer.addAnswer(Integer.parseInt(docIDStr),finalScore);
+					PostingsEntry postingsEnt = posts.getFromID(Integer.parseInt(docIDStr));
+					PostingsEntry toAdd = new PostingsEntry(Integer.parseInt(docIDStr), postingsEnt.getPos(), finalScore);
+					answer.addEntry(postingsEnt);
 				}
 				answer.sortScore();
 				
@@ -254,6 +304,7 @@ public class HashedIndex implements Index {
 		}
 		return null;
 	}
+
 
 	/**
 	 *  No need for cleanup in a HashedIndex.

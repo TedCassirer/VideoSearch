@@ -45,6 +45,7 @@ public class SearchWeb {
     private int structureType = Index.UNIGRAM;
     private int frameType = Index.ALLFRAMES;
     private Object indexLock = new Object();
+	public int beingClose = 3;
 
     public SearchWeb(String query) {
         this.query = new Query(SimpleTokenizer.normalize(query));

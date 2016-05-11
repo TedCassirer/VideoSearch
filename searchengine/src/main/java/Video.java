@@ -2,19 +2,19 @@ import java.util.List;
 
 public class Video {
     private String name;
-    private List<Integer> offsets;
+    private int offset;
 
-    public Video(String n, List<Integer> o) {
+    public Video(String n, int o) {
         name = n;
-        offsets = o;
+        offset = o;
     }
 
     public String getName() {
         return this.name;
     }
 
-    public List<Integer> getTimes() {
-        return this.offsets;
+    public int getTime() {
+        return this.offset;
     }
 }
 

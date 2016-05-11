@@ -10,11 +10,8 @@
 
 <div class="container">
     <#list videos as v>
-    <p>
-        <a target="_blank" href="https://www.youtube.com/watch?v=${v.name}"><img src="http://img.youtube.com/vi/${v.name}/default.jpg"></a> 
-        <#list v.times as t>
-            - <a target="_blank" href="https://www.youtube.com/watch?v=${v.name}#t=${t}s">At ${t}s</a> 
-        </#list>
+    <p class="text-center">
+        <a target="_blank" href="https://www.youtube.com/watch?v=${v.name}#t=${v.time}"><img src="http://img.youtube.com/vi/${v.name}/hqdefault.jpg"></a> 
     </p>
     </#list>
 </div>

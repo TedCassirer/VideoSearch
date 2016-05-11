@@ -1,0 +1,6 @@
+{
+  "name": "Video Search",
+  "description": "A search engine based on video content!"
+  "image": "heroku/java",
+  "addons": [ "heroku-postgresql" ]
+}

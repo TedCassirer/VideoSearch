@@ -1,0 +1,6 @@
+# vim hidden files
+*.swp
+
+
+# Java binaries directory
+target

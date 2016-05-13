@@ -198,7 +198,12 @@ public class SimpleTokenizer {
 				return token_found;
 			}
 		}
-		return new String( buf, tokenStart, ptr-tokenStart );
+		if (tokenStart == -1) {
+			return new String( buf, 0, ptr );
+		}
+		else {
+			return new String( buf, tokenStart, ptr-tokenStart );
+		}
 	}
 
 
@@ -212,8 +217,3 @@ public class SimpleTokenizer {
 		}
 	}
 }
-
-
-
-
-
